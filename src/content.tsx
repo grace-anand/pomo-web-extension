@@ -17,19 +17,33 @@ const PlasmoOverlay = () => {
 
   useEffect(() => {
     if (!started) {
-      timerPort.send({ action: "start" })
+      timerPort.send({ action: "get" })
       setStarted(true)
     }
   }, [])
 
+  const pomoTime = timerPort.data?.status === "pomo_running"
+  const hue = pomoTime ? timerPort.data?.percentage * 120 : 240
+
+  if (window.location.href === "https://www.youtube.com/" && pomoTime) {
+    document.getElementById("primary")?.remove()
+  }
+
+  if (!timerPort.data?.time) return null
+
   return (
-    <div className="plasmo-z-50 plasmo-fixed plasmo-top-32 plasmo-right-8">
-      {timerPort.data?.time && (
+    <div
+      style={{ color: `hsl(${hue}, 100%, 50%)` }}
+      className="plasmo-z-50 plasmo-fixed plasmo-top-32 plasmo-right-8">
+      <span className="plasmo-text-center">
+        {pomoTime ? "Time left to work!!!" : "Break time"}
+      </span>
+      {
         <Timer
           minutes={Math.floor(timerPort.data?.time / 60) || 0}
           seconds={timerPort.data?.time % 60 || 0}
         />
-      )}
+      }
     </div>
   )
 }
